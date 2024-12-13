@@ -51,7 +51,7 @@ export const getK8sDaemonSetsList = async (
 	headers?: Record<string, string>,
 ): Promise<SuccessResponse<K8sDaemonSetsListResponse> | ErrorResponse> => {
 	try {
-		const response = await ApiBaseInstance.post('/daemonSets/list', props, {
+		const response = await ApiBaseInstance.post('/daemonsets/list', props, {
 			signal,
 			headers,
 		});
