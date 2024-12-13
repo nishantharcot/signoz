@@ -51,7 +51,7 @@ export const getK8sStatefulSetsList = async (
 	headers?: Record<string, string>,
 ): Promise<SuccessResponse<K8sStatefulSetsListResponse> | ErrorResponse> => {
 	try {
-		const response = await ApiBaseInstance.post('/statefulSets/list', props, {
+		const response = await ApiBaseInstance.post('/statefulsets/list', props, {
 			signal,
 			headers,
 		});
