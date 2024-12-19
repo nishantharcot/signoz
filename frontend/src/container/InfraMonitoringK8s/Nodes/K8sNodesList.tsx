@@ -372,9 +372,9 @@ function K8sNodesList({
 		);
 	};
 
-	// const handleCloseNodeDetail = (): void => {
-	// 	setselectedNodeUID(null);
-	// };
+	const handleCloseNodeDetail = (): void => {
+		setselectedNodeUID(null);
+	};
 
 	const showsNodesTable =
 		!isError &&
