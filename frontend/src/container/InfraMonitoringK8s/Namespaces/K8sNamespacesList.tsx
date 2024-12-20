@@ -28,6 +28,7 @@ import { GlobalReducer } from 'types/reducer/globalTime';
 import K8sHeader from '../K8sHeader';
 import LoadingContainer from '../LoadingContainer';
 import { dummyColumnConfig } from '../utils';
+import NamespaceDetails from './NamespaceDetails';
 import {
 	defaultAddedColumns,
 	formatDataForTable,
@@ -57,7 +58,9 @@ function K8sNamespacesList({
 		order: 'asc' | 'desc';
 	} | null>(null);
 
-	// const [selectedNamespaceUID, setselectedNamespaceUID] = useState<string | null>(null);
+	const [selectedNamespaceName, setselectedNamespaceName] = useState<
+		string | null
+	>(null);
 
 	const pageSize = 10;
 
@@ -262,21 +265,26 @@ function K8sNamespacesList({
 		logEvent('Infra Monitoring: K8s list page visited', {});
 	}, []);
 
-	// const selectedNamespaceData = useMemo(() => {
-	// 	if (!selectedNamespaceUID) return null;
-	// 	return namespacesData.find((namespace) => namespace.namespaceUID === selectedNamespaceUID) || null;
-	// }, [selectedNamespaceUID, namespacesData]);
+	const selectedNamespaceData = useMemo(() => {
+		if (!selectedNamespaceName) return null;
+		return (
+			namespacesData.find(
+				(namespace) => namespace.namespaceName === selectedNamespaceName,
+			) || null
+		);
+	}, [selectedNamespaceName, namespacesData]);
 
 	const handleRowClick = (record: K8sNamespacesRowData): void => {
 		if (groupBy.length === 0) {
 			setSelectedRowData(null);
-			// setselectedNamespaceUID(record.namespaceUID);
+			console.log({ record });
+			setselectedNamespaceName(record.namespaceName);
 		} else {
 			handleGroupByRowClick(record);
 		}
 
 		logEvent('Infra Monitoring: K8s namespace list item clicked', {
-			namespaceUID: record.namespaceUID,
+			namespaceName: record.namespaceName,
 		});
 	};
 
@@ -379,9 +387,9 @@ function K8sNamespacesList({
 		);
 	};
 
-	// const handleCloseNamespaceDetail = (): void => {
-	// 	setselectedNamespaceUID(null);
-	// };
+	const handleCloseNamespaceDetail = (): void => {
+		setselectedNamespaceName(null);
+	};
 
 	const showsNamespacesTable =
 		!isError &&
@@ -490,7 +498,11 @@ function K8sNamespacesList({
 					}}
 				/>
 			)}
-			{/* TODO - Handle Namespace Details flow */}
+			<NamespaceDetails
+				isModalTimeSelection
+				namespace={selectedNamespaceData}
+				onClose={handleCloseNamespaceDetail}
+			/>
 		</div>
 	);
 }
