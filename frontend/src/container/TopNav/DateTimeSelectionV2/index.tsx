@@ -22,6 +22,7 @@ import { QueryHistoryState } from 'container/LiveLogs/types';
 import NewExplorerCTA from 'container/NewExplorerCTA';
 import dayjs, { Dayjs } from 'dayjs';
 import { useQueryBuilder } from 'hooks/queryBuilder/useQueryBuilder';
+import { useSafeNavigate } from 'hooks/useSafeNavigate';
 import useUrlQuery from 'hooks/useUrlQuery';
 import GetMinMax, { isValidTimeFormat } from 'lib/getMinMax';
 import getTimeString from 'lib/getTimeString';
@@ -74,6 +75,7 @@ function DateTimeSelection({
 	modalSelectedInterval,
 }: Props): JSX.Element {
 	const [formSelector] = Form.useForm();
+	const { safeNavigate } = useSafeNavigate();
 
 	const [hasSelectedTimeError, setHasSelectedTimeError] = useState(false);
 	const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -348,7 +350,7 @@ function DateTimeSelection({
 				urlQuery.set(QueryParams.relativeTime, value);
 
 				const generatedUrl = `${location.pathname}?${urlQuery.toString()}`;
-				history.replace(generatedUrl);
+				safeNavigate(generatedUrl);
 			}
 
 			// For logs explorer - time range handling is managed in useCopyLogLink.ts:52
@@ -367,6 +369,7 @@ function DateTimeSelection({
 			location.pathname,
 			onTimeChange,
 			refreshButtonHidden,
+			safeNavigate,
 			stagedQuery,
 			updateLocalStorageForRoutes,
 			updateTimeInterval,
@@ -519,6 +522,18 @@ function DateTimeSelection({
 
 		const currentRoute = location.pathname;
 
+		// Give priority to relativeTime from URL if it exists and start /end time are not present in the url, to sync the relative time in URL param with the time picker
+		if (
+			!searchStartTime &&
+			!searchEndTime &&
+			relativeTimeFromUrl &&
+			isValidTimeFormat(relativeTimeFromUrl)
+		) {
+			updateTimeInterval(relativeTimeFromUrl as Time);
+			setIsValidteRelativeTime(true);
+			setRefreshButtonHidden(false);
+		}
+
 		// set the default relative time for alert history and overview pages if relative time is not specified
 		if (
 			(!urlQuery.has(QueryParams.startTime) ||
@@ -530,7 +545,7 @@ function DateTimeSelection({
 			updateTimeInterval(defaultRelativeTime);
 			urlQuery.set(QueryParams.relativeTime, defaultRelativeTime);
 			const generatedUrl = `${location.pathname}?${urlQuery.toString()}`;
-			history.replace(generatedUrl);
+			safeNavigate(generatedUrl);
 			return;
 		}
 
@@ -570,7 +585,7 @@ function DateTimeSelection({
 
 		history.replace(generatedUrl);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [location.pathname, updateTimeInterval, globalTimeLoading]);
+	}, [location.pathname, updateTimeInterval, globalTimeLoading, safeNavigate]);
 
 	// eslint-disable-next-line sonarjs/cognitive-complexity
 	const shareModalContent = (): JSX.Element => {
